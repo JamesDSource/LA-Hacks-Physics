@@ -4,53 +4,79 @@
 #include<assert.h>
 #include "raylib.h"
 
-void drawPoly(Vector2* points, size_t size, Vector2 velocity){                      
-    for (int i = 0; i<size; i++){                                                   
-        points[i].x = points[i].x + velocity.x;                                       
-        points[i].y = points[i].y + velocity.y;                                       
-    }        
+const int width  = 800;
+const int height = 450;
+
+void drawPoly(Vec2* points, size_t size, Vec2* velocity){                      
+    for (int i = 0; i<size; i++){                              
+		points[i].x = points[i].x + velocity->x;                                       
+		points[i].y = points[i].y + velocity->y;  
+		if(points[i].x>width){
+			points[i].x = width;
+			velocity->x = 0;
+			velocity->y = 0;
+		}	
+		if(points[i].y>height){
+			points[i].y = height;
+			velocity->x = 0;
+			velocity->y = 0;                     
+		}                       
+    }       
 	for (int i = 0; i<size-1; i++){                                                                     
         DrawLine(points[i].x, points[i].y, points[i+1].x, points[i+1].y,BLACK);       
     }    
-
     DrawLine(points[0].x, points[0].y, points[size-1].x, points[size-1].y,RED);    
 }                                                                                     
 
 
-void drawCircle(Vector2 center, Fixed_FLT radius, Vector2 velocity){                
-    center.x = center.x + velocity.x;                                                 
-    center.y = center.y + velocity.y;                                                 
-    DrawCircleV(center, radius, DARKBLUE);                                            
+void drawCircle(Vec2 center, Fixed_FLT radius, Vec2* velocity){                
+    center.x = center.x + velocity->x;                                                 
+    center.y = center.y + velocity->y;        
+	if(center.x>width-radius){
+		center.x = width-radius;
+		velocity->x = 0;
+		velocity->y = 0;
+	}
+	if(center.y>height-radius){
+		center.y = height-radius;
+		velocity->x = 0;
+		velocity->y = 0;
+	}                                 
+    DrawCircle((int)FloatFromFixed(center.x),(int)FloatFromFixed(center.y), radius, DARKBLUE);                                            
 }
 
-Vector2 object1[] = {                                                                
-     { 100.0f, 150.0f },                                                              
-     { 200.0f, 200.0f },                                                              
-     { 250.0f, 300.0f },                                                              
-     { 400.0f, 160.0f },                                                             
-    // { 200.0f, 260.0f },                                                            
- };
-Vector2 speed = {0.1,0.1};                                                                  
-int size = sizeof(object1)/sizeof(Vector2);  
 
-int main(void) {
-	InitWindow(800, 450, "Physics Demo");
-	Vec2 v = (Vec2){
-		.x = FixedFromInt(1),
-		.y = FixedFromInt(2),
+
+int main(void) {   
+	InitWindow(width, height, "Physics Demo");
+
+	Vec2 velocity = (Vec2){
+		.x = FixedFromInt(0),
+		.y = FixedFromInt(0),
 	};
-	Fixed_FLT length = FixedSqrt(FixedAdd(FixedMult(v.x, v.x), FixedMult(v.y, v.y)));
-	printf("%f\n%f\n%f\n", FloatFromFixed(FixedDiv(FixedFromInt(2), FixedFromInt(3))), FloatFromFixed(FixedFromFloat(2)), FloatFromFixed(length));
+
+	Vec2 object1[] = {                                                                
+    (Vec2){ .x = FixedFromInt(100), .y = FixedFromInt(150) },  
+    (Vec2){ .x = FixedFromInt(200), .y = FixedFromInt(150) },                                                              
+    (Vec2){ .x = FixedFromInt(300), .y = FixedFromInt(450) },                                                                                    
+ 	};
+
+ 	int size = sizeof(object1)/sizeof(Vec2);
 	World *world;
 	World_Result world_res = WorldInit(&world);
+	Circle circle = {10};
+	Shape shape = {.circle = circle};
+	ObjectListAppend(&(world->objects), (Object){SHAPE_CIRCLE, shape}, object1[0], velocity, (ObjectMaterial){0});
 	assert(world_res == WORLD_RESULT_SUCCESS);
 	while (!WindowShouldClose())                                                      
-   { 
+   	{ 
        BeginDrawing();                                                               
        ClearBackground(RAYWHITE);                                                                                              
        DrawText(TextFormat("size %i", size), GetScreenWidth()/2 - 100, 50, 20, BLACK);
-       drawPoly(object1, size, speed);                                                    
-       drawCircle(object1[0], 10, speed);                                                   
+       drawPoly(object1, size, &velocity);                                                    
+       drawCircle(object1[2], 10, &velocity); 
+       drawCircle(object1[1], 10, &velocity);                                                   
+
        EndDrawing();
     }
 	CloseWindow();

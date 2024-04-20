@@ -84,6 +84,11 @@ void WorldDeinit(World *world) {
 }
 
 void WorldTick(World *world) {
+	#if 0
+	for(size_t i = 0; i < world->object.len; ++i){
+		world->objects.positions[i].x = FixedAdd(world->objects.positions[i].x, world->objects.velocities[i].x);
+        world->objects.positions[i].y = FixedAdd(world->objects.positions[i].y, world->objects.velocities[i].y);
+	}
 	for (size_t i = 0; i < world->objects.len; ++i) {
 		for (size_t j = 0; j < world->objects.len; ++j) {
 			if (i == j) {
@@ -91,6 +96,7 @@ void WorldTick(World *world) {
 			}
 		}
 	}
+	#endif
 }
 
 bool GJK(ObjectList *list, size_t a, size_t b) {
