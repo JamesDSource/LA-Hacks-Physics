@@ -7,7 +7,7 @@ SRCS=$(wildcard $(SRC)/*.c)
 BINS=$(SRCS:$(SRC)/%.c=%)
 
 all:
-	$(CC) $(CFLAGS) -o $(BIN)/demo $(SRCS)
+	$(CC) `pkg-config --libs --cflags raylib` $(CFLAGS) -o $(BIN)/demo $(SRCS)
 
 clean:
 	$(RM) $(BIN)/*
