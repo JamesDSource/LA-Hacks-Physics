@@ -21,6 +21,8 @@ Fixed_FLT FixedSub(Fixed_FLT a, Fixed_FLT b);
 Fixed_FLT FixedMult(Fixed_FLT a, Fixed_FLT b);
 Fixed_FLT FixedDiv(Fixed_FLT a, Fixed_FLT b);
 
+#endif
+
 #ifdef FIXED_MATH_IMPL_
 Fixed_FLT FixedFromInt(int x) {
 	return (Fixed_FLT)(x << FLT_FRAC_BITS);
@@ -80,5 +82,4 @@ Fixed_FLT FixedDiv(Fixed_FLT a, Fixed_FLT b) {
 	return (Fixed_FLT)(a * reciprocal) << 1;
 }
 
-#endif
 #endif

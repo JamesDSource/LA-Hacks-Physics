@@ -3,6 +3,10 @@
 #include"world.h"
 #include<assert.h>
 
+// Add the fixed math implementation. Do only once
+#define _FIXED_MATH_IMPL_
+#include"fixed_math.h"
+
 int main() {
 	// InitWindow(1920, 1080, "Physics Demo", NULL, NULL);
 

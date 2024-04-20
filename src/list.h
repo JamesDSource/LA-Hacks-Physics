@@ -9,8 +9,7 @@ typedef enum {
 	LIST_RESULT_OUT_OF_BOUNDS,
 } List_Result;
 
-#define LIST(T, L) typedef struct L { size_t len; size_t cap; T items; } L; \
-	List_Result L ## Init(size_t cap, L **list) { \
+#define LIST(T, L) List_Result L ## Init(size_t cap, L **list) { \
 			*list = (L*)(malloc(sizeof(L) + (cap - 1)*sizeof(T))); \
 			if (*list == NULL) { \
 				return LIST_RESULT_OUT_OF_MEMORY; \
@@ -19,11 +18,11 @@ typedef enum {
 		} \
 	void L ## Free(L *list) { \
 			free(list); \
-		}\
+		} \
 	List_Result L ## Append(L **list, T item) { \
 			size_t len = (*list)->len; \
 			if(len + 1 >= (*list)->cap) { \
-				*list = (L*)(realloc(*list, (*list)->cap*2)); \
+				*list = (L*)(realloc(*list, sizeof(T)*(*list)->cap*2)); \
 				if (*list == NULL) { \
 					return LIST_RESULT_OUT_OF_MEMORY; \
 				} \
@@ -43,5 +42,11 @@ typedef enum {
 			list->len -= 1; \
 			return LIST_RESULT_SUCCESS; \
 		}
+
+#define LIST_H(T, L) typedef struct L { size_t len; size_t cap; T items; } L; \
+	List_Result L ## Init(size_t cap, L **list); \
+	void L ## Free(L *list); \
+	List_Result L ## Append(L **list, T item); \
+	List_Result L ## UnorderedRemove(L *list, size_t idx); \
 
 #endif

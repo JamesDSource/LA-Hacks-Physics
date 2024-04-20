@@ -2,9 +2,6 @@
 #define WORLD_H_
 
 #include"list.h"
-
-// Add the fixed math implementation. Do only once
-#define _FIXED_MATH_IMPL_
 #include"fixed_math.h"
 
 #include<stdlib.h>
@@ -14,14 +11,13 @@ typedef struct {
 	Fixed_FLT y;
 } Vec2;
 
-LIST(Vec2, PointList)
+LIST_H(Vec2, PointList)
 
 typedef struct {
 	PointList *points;
 } Polygon;
 
 typedef struct {
-	Vec2 center;
 	int radius;
 } Circle;
 
@@ -40,7 +36,18 @@ typedef struct {
 	Shape shape;
 } Object;
 
-LIST(Object, ObjectList)
+typedef struct {
+	Fixed_FLT mass;
+} ObjectMaterial;
+
+typedef struct {
+	size_t len;
+	size_t cap;
+	Object *objects;
+	Vec2 *positions;
+	Vec2 *velocities;
+	ObjectMaterial *materials;
+} ObjectList;
 
 typedef enum {
 	WORLD_RESULT_SUCCESS,
@@ -48,8 +55,13 @@ typedef enum {
 } World_Result;
 
 typedef struct {
-	ObjectList *objects;
+	ObjectList objects;
 } World;
+
+List_Result ObjectListInit(size_t cap, ObjectList *list);
+void ObjectListFree(ObjectList list);
+List_Result ObjectListAppend(ObjectList *list, Object object, Vec2 position, Vec2 velocity, ObjectMaterial material);
+List_Result ObjectListUnorderedRemove(ObjectList *list, int idx);
 
 World_Result WorldInit(World **world);
 void WorldDeinit(World *world);
