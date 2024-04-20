@@ -1,4 +1,5 @@
 #include<stdlib.h>
+#include<assert.h>
 #include"world.h"
 
 LIST(Vec2, PointList)
@@ -90,4 +91,26 @@ void WorldTick(World *world) {
 			}
 		}
 	}
+}
+
+bool GJK(ObjectList *list, size_t a, size_t b) {
+	return false;
+}
+
+static void GJKLineCase(Simplex *simplex, Vec2 *dir) {
+	assert(simplex->len == 2);
+
+	a := simplex.points[1]
+	b := simplex.points[0]
+
+	ao := -a
+	ab := b - a
+
+	if lg.dot(ab, ao) > 0 {
+		direction^ = lg.normalize(lg.cross(lg.cross(ab, ao), ab))
+	}
+}
+
+static void GJKTriangleCase(Simplex *simplex, Vec2 *dir) {
+
 }

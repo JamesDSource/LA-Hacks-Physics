@@ -22,11 +22,11 @@ typedef enum {
 	List_Result L ## Append(L **list, T item) { \
 			size_t len = (*list)->len; \
 			if(len + 1 >= (*list)->cap) { \
-				*list = (L*)(realloc(*list, sizeof(T)*(*list)->cap*2)); \
+				(*list)->cap *= 2; \
+				*list = (L*)(realloc(*list, sizeof(L) + sizeof(T)*((*list)->cap - 1))); \
 				if (*list == NULL) { \
 					return LIST_RESULT_OUT_OF_MEMORY; \
 				} \
-				(*list)->cap *= 2; \
 			} \
 			T *items = &(*list)->items; \
 			items[len] = item; \

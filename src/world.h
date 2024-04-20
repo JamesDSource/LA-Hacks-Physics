@@ -1,15 +1,15 @@
 #ifndef WORLD_H_
 #define WORLD_H_
 
+#include<stdlib.h>
+#include<stdbool.h>
 #include"list.h"
 #include"fixed_math.h"
 
-#include<stdlib.h>
-
 typedef struct {
-	Fixed_FLT x;
-	Fixed_FLT y;
-} Vec2;
+	Vec2 points[3];
+	uint len;
+} Simplex;
 
 LIST_H(Vec2, PointList)
 
@@ -66,5 +66,7 @@ List_Result ObjectListUnorderedRemove(ObjectList *list, int idx);
 World_Result WorldInit(World **world);
 void WorldDeinit(World *world);
 void WorldTick(World *world);
+
+bool GJK(ObjectList *list, size_t a, size_t b);
 
 #endif

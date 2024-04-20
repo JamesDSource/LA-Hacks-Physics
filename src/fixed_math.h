@@ -12,6 +12,11 @@
 
 typedef int32_t Fixed_FLT;
 
+typedef struct {
+	Fixed_FLT x;
+	Fixed_FLT y;
+} Vec2;
+
 Fixed_FLT FixedFromInt(int x);
 Fixed_FLT FixedFromFloat(float x);
 float FloatFromFixed(Fixed_FLT x);
@@ -20,6 +25,15 @@ Fixed_FLT FixedAdd(Fixed_FLT a, Fixed_FLT b);
 Fixed_FLT FixedSub(Fixed_FLT a, Fixed_FLT b);
 Fixed_FLT FixedMult(Fixed_FLT a, Fixed_FLT b);
 Fixed_FLT FixedDiv(Fixed_FLT a, Fixed_FLT b);
+
+Fixed_FLT Vec2Add(Vec2 a, Vec2 b);
+Fixed_FLT Vec2Sub(Vec2 a, Vec2 b);
+Fixed_FLT Vec2Mult(Vec2 a, Vec2 b);
+Fixed_FLT Vec2Div(Vec2 a, Vec2 b);
+Fixed_FLT Vec2MultScaler(Vec2 a, Fixed_FLT b);
+Fixed_FLT Vec2DivScaler(Vec2 a, Fixed_FLT b);
+Fixed_FLT Vec2Dot(Vec2 a, Vec2 b);
+Fixed_FLT Vec2Cross(Vec2 a, Vec2 b);
 
 #endif
 
@@ -80,6 +94,60 @@ Fixed_FLT FixedDiv(Fixed_FLT a, Fixed_FLT b) {
 	reciprocal = (uint32_t)(reciprocal / b);
 
 	return (Fixed_FLT)(a * reciprocal) << 1;
+}
+
+Vec2 Vec2Add(Vec2 a, Vec2 b) {
+	return (Vec2) {
+		.x = FixedAdd(a.x, b.x),
+		.y = FixedAdd(a.y, b.y),
+	};
+}
+
+Vec2 Vec2Sub(Vec2 a, Vec2 b) {
+	return (Vec2) {
+		.x = FixedAdd(a.x, -b.x),
+		.y = FixedAdd(a.y, -b.y),
+	};
+}
+
+Vec2 Vec2Mult(Vec2 a, Vec2 b) {
+	return (Vec2) {
+		.x = FixedMult(a.x, b.x),
+		.y = FixedMult(a.y, b.y),
+	};
+}
+
+Vec2 Vec2Div(Vec2 a, Vec2 b) {
+	return (Vec2) {
+		.x = FixedDiv(a.x, b.x),
+		.y = FixedDiv(a.y, b.y),
+	};
+}
+
+Fixed_FLT Vec2MultScaler(Vec2 a, Fixed_FLT b) {
+	return (Vec2) {
+		.x = FixedMult(a.x, b),
+		.y = FixedMult(a.y, b),
+	};
+}
+
+Fixed_FLT Vec2DivScaler(Vec2 a, Fixed_FLT b) {
+	return (Vec2) {
+		.x = FixedDiv(a.x, b),
+		.y = FixedDiv(a.y, b),
+	};
+}
+
+Fixed_FLT Vec2Dot(Vec2 a, Vec2 b) {
+	return FixedAdd(FixedMult(a.x, b.x), FixedMult(a.y, b.y));
+}
+
+vector_cross2 :: proc "contextless" (a, b: $T/[2]$E) -> E where IS_NUMERIC(E) {
+	return a[0]*b[1] - b[0]*a[1];
+}
+
+Fixed_FLT Vec2Cross(Vec2 a, Vec2 b) {
+	return FixedSub(FixedMult(a.x, b.y), FixedMult(b.x, a.y));
 }
 
 #endif
