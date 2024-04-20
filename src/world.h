@@ -8,7 +8,7 @@
 
 typedef struct {
 	Vec2 points[3];
-	uint len;
+	unsigned int len;
 } Simplex;
 
 LIST_H(Vec2, PointList)
