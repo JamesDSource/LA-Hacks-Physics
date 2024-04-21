@@ -2,7 +2,7 @@
 #include"raylib.h"
 
 static void drawPoly(Vec2 position, PointList* points) {
-	for (Vec2 *point = &(points->items); point < &(points->items) + points->len; ++point) {
+	for (Vec2 *point = &(points->items); point < (&(points->items) + points->len); ++point) {
 		Fixed_FLT x = FixedAdd(position.x, point->x);
 		Fixed_FLT y = FixedAdd(position.y, point->y);
 		Fixed_FLT x1 = FixedAdd(position.x, point[1].x);
@@ -26,8 +26,10 @@ void VisualizeWorld(World* world) {
 		switch (world->objects.objects[i].type) {
 		case SHAPE_CIRCLE:
 			drawCircle(world->objects.positions[i], world->objects.objects[i].shape.circle.radius);
+			break;
 		case SHAPE_POLYGON:
 			drawPoly(world->objects.positions[i], world->objects.objects[i].shape.polygon.points);
+			break;
 		}
 	}
 }

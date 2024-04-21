@@ -4,14 +4,14 @@
 #include<math.h>
 
 Fixed_FLT FixedFromInt(int x) {
-	return (Fixed_FLT)(x << FLT_FRAC_BITS);
+	return (Fixed_FLT)((uint64_t)(x) << FLT_FRAC_BITS);
 }
 
 Fixed_FLT FixedFromFloat(float x) {
-	int int_part = (int)(x);
+	uint64_t int_part = (uint64_t)(x);
 	float frac_part = x - int_part;
 	Fixed_FLT fixed = (Fixed_FLT)(int_part << FLT_FRAC_BITS);
-	fixed += (int)((1 << FLT_FRAC_BITS)*frac_part);
+	fixed += (Fixed_FLT)(((uint64_t)(1) << FLT_FRAC_BITS)*frac_part);
 	return fixed;
 }
 
@@ -20,41 +20,19 @@ float FloatFromFixed(Fixed_FLT x) {
 }
 
 Fixed_FLT FixedAdd(Fixed_FLT a, Fixed_FLT b) {
-	if ((a > 0) && (b > FLT_MAX - a)) {
-		return (a + FLT_MIN) + (b + FLT_MIN);
-	} else if ((a < 0) && (b < FLT_MIN - a)) {
-		return (a - FLT_MIN) + (b - FLT_MIN);
-	} else {
-		return a + b;
-	}
+	return a + b;
 }
 
 Fixed_FLT FixedSub(Fixed_FLT a, Fixed_FLT b) {
-	if ((a > 0) && (-b > FLT_MAX - a)) {
-		return (a + FLT_MIN) + (-b + FLT_MIN);
-	} else if ((a < 0) && (-b < FLT_MIN - a)) {
-		return (a - FLT_MIN) + (-b - FLT_MIN);
-	} else {
-		return a - b;
-	}
+	return a - b;
 }
 
 Fixed_FLT FixedMult(Fixed_FLT a, Fixed_FLT b) {
-	Fixed_FLT int_part1 = a >> FLT_FRAC_BITS;
-	Fixed_FLT frac_part1 = a & FLT_FRAC_MASK;
-
-	Fixed_FLT int_part2 = b >> FLT_FRAC_BITS;
-	Fixed_FLT frac_part2 = b & FLT_FRAC_MASK;
-
-	Fixed_FLT value = (int_part1 * int_part2) << FLT_FRAC_BITS;
-	value += (int_part1 * frac_part2);
-	value += (frac_part1 * int_part2);
-	value += ((frac_part1 * frac_part2) >> FLT_FRAC_BITS) & FLT_FRAC_MASK;
-	return value;
+	return (Fixed_FLT)(((int64_t)a * (int64_t)b) >> FLT_FRAC_BITS);
 }
 
 Fixed_FLT FixedDiv(Fixed_FLT a, Fixed_FLT b) {
-	return (Fixed_FLT)((long)(a) *(1 << 16)/b);
+	return (Fixed_FLT)(((int64_t)a << FLT_FRAC_BITS)/b);
 }
 
 Fixed_FLT FixedAbs(Fixed_FLT x) {
@@ -95,17 +73,17 @@ Vec2 Vec2Div(Vec2 a, Vec2 b) {
 	};
 }
 
-Vec2 Vec2MultScaler(Vec2 a, Fixed_FLT b) {
+Vec2 Vec2MultScaler(Vec2 a, int b) {
 	return (Vec2) {
-		.x = FixedMult(a.x, b),
-		.y = FixedMult(a.y, b),
+		.x = a.x*b,
+		.y = a.y*b,
 	};
 }
 
-Vec2 Vec2DivScaler(Vec2 a, Fixed_FLT b) {
+Vec2 Vec2DivScaler(Vec2 a, int b) {
 	return (Vec2) {
-		.x = FixedDiv(a.x, b),
-		.y = FixedDiv(a.y, b),
+		.x = a.x*b,
+		.y = a.y*b,
 	};
 }
 
@@ -125,7 +103,8 @@ Fixed_FLT Vec2Cross(Vec2 a, Vec2 b) {
 }
 
 Fixed_FLT Vec2Length(Vec2 x) {
-	return FixedSqrt(FixedAdd(FixedMult(x.x, x.x), FixedMult(x.y, x.y)));
+	Fixed_FLT len = FixedSqrt(FixedAdd(FixedMult(x.x, x.x), FixedMult(x.y, x.y)));
+	return len;
 }
 
 Vec2 Vec2Normalize(Vec2 x) {
