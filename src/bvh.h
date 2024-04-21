@@ -9,21 +9,23 @@ typedef struct {
   Vec2 upper_bound;
 }AABB;
 
-typedef struct {
+typedef struct Node{
     AABB box;
     int object_index;
     int parent_index;
-    int child1;
-    int child2;
+    struct Node* child1;
+    struct Node* child2;
 } Node;
+
 
 typedef struct {
     Node *nodes;
     int node_count;
     int root_index;
+    Node *root_node;
 } Tree;
 
-void TreeBuild(Tree **tree, ObjectList *objects);
+void TreeBuild(Tree **tree, ObjectList *objects, Fixed_FLT minArea);
 void TreeRebuild(Tree *tree, ObjectList *objects);
 void TreeCleanup(Tree *tree);
 

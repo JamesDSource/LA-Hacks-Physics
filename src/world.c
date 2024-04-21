@@ -340,7 +340,7 @@ bool GJK(ObjectList *list, size_t a, size_t b, Vec2 *mpv) {
 }
 
 // @returns number of failures
-int GJKTest() {
+int GJKTest(void) {
 	int failures = 0;
 	World *world;
 	World_Result world_res = WorldInit(&world);
