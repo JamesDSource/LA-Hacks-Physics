@@ -13,15 +13,79 @@ Fixed_FLT Area(AABB a) {
 	Fixed_FLT height = FixedSub(a.upper_bound.y, a.lower_bound.y);
 	return FixedMult(width, height);
 }
+Node* BuildNode(ObjectList* objects, int startIndex, int endIndex, Fixed_FLT minArea) {
+  Node* node = malloc(sizeof(Node));
+ 
+  AABB bounds;
+  bounds.lower_bound = objects->positions[startIndex];
+  bounds.upper_bound = objects->positions[startIndex];
+  for (int i = startIndex + 1; i < endIndex; ++i) {
+    bounds.lower_bound = Vec2Min(bounds.lower_bound, objects->positions[i]);
+    bounds.upper_bound = Vec2Max(bounds.upper_bound, objects->positions[i]);
+  }
 
-void TreeBuild(Tree **tree, ObjectList *objects) {
-	*tree = malloc(sizeof(Tree));
-	(*tree)->node_count = objects->len;
+  Fixed_FLT currentArea = Area(bounds);
+  if (currentArea < minArea) {
+    bounds.upper_bound.x = FixedAdd(bounds.lower_bound.x, FixedSqrt(minArea));
+    bounds.upper_bound.y = FixedAdd(bounds.lower_bound.y, FixedSqrt(minArea));
+  }
 
-	int steps = (int)(log2((double)(objects->len))) + 1;
+  node->box = bounds;
 
-	Node *root = malloc(sizeof(Node));
+ 
+  if (endIndex - startIndex == 1) {
+    node->child1 = NULL;
+    node->child2 = NULL;
+    node->object_index = startIndex;
+  } else {
+    
+    int splitAxis = 0; 
+    Fixed_FLT minCost = FLT_MAX;
+    int bestSplit = -1;
+
+    for (int i = startIndex + 1; i < endIndex; ++i) {
+      AABB leftBounds = bounds;
+      leftBounds.upper_bound.x = objects->positions[i].x;
+      AABB rightBounds = bounds;
+      rightBounds.lower_bound.x = objects->positions[i].x;
+
+      Fixed_FLT leftArea = Area(leftBounds);
+      Fixed_FLT rightArea = Area(rightBounds);
+      Fixed_FLT cost = leftArea + rightArea;
+
+      if (cost < minCost) {
+        minCost = cost;
+        bestSplit = i;
+      }
+    }
+
+  
+    node->child1 = BuildNode(objects, startIndex, bestSplit, minArea);
+    node->child2 = BuildNode(objects, bestSplit, endIndex, minArea);
+  }
+
+  return node;
 }
 
-void TreeRebuild(Tree *tree, ObjectList *objects);
-void TreeCleanup(Tree *tree);
+void TreeBuild(Tree **tree, ObjectList *objects, Fixed_FLT minArea) {
+	*tree = malloc(sizeof(Tree));
+    (*tree)->node_count = objects->len;
+
+    
+    (*tree)->root_index = BuildNode(objects, 0, objects->len, minArea);
+
+}
+
+void CleanBVHTree(Node *node) {
+    if (node == NULL)
+        return;
+
+ 
+    CleanBVHTree(node->child1);
+    CleanBVHTree(node->child2);
+	free(node);
+}
+void TreeCleanup(Tree *tree){
+	CleanBVHTree(tree->root_index);
+	free(tree);
+}
