@@ -70,6 +70,6 @@ void WorldDeinit(World *world);
 void WorldTick(World *world);
 
 bool GJK(ObjectList *list, size_t a, size_t b, Vec2 *mpv);
-int GJKTest();
+int GJKTest(void);
 
 #endif
