@@ -62,11 +62,8 @@ Fixed_FLT FixedAbs(Fixed_FLT x) {
 }
 
 Fixed_FLT FixedSqrt(Fixed_FLT x) {
-	printf("%f\n", FloatFromFixed(x));
 	float f = FloatFromFixed(x);
-	printf("%f\n", f);
 	f = sqrtf(f);
-	printf("%f\n", f);
 	return FixedFromFloat(f);
 }
 
@@ -132,9 +129,7 @@ Fixed_FLT Vec2Length(Vec2 x) {
 }
 
 Vec2 Vec2Normalize(Vec2 x) {
-	printf("x %f y %f \n", FloatFromFixed(x.x), FloatFromFixed(x.y));
 	Fixed_FLT length = Vec2Length(x);
-	printf("Length %f\n", FloatFromFixed(length));
 	return (Vec2){
 		.x = FixedDiv(x.x, length),
 		.y = FixedDiv(x.y, length),

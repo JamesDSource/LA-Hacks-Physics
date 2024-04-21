@@ -111,6 +111,11 @@ void WorldTick(World *world) {
 			if (i == j) {
 				continue;
 			}
+
+			Vec2 mpv;
+			if (GJK(&(world->objects), i, j, &mpv)) {
+
+			}
 		}
 	}
 }
@@ -184,7 +189,6 @@ static void gjkLineCase(Simplex *simplex, Vec2 *dir) {
 	Vec2 b = simplex->points[0];
 	Vec2 ab = Vec2Add(b, ao);
 
-	printf("Line Case");
 	if (Vec2Dot(ab, ao) > 0) {
 		*dir = Vec2Normalize(vec2TripleCross3(ab, 0, ao, 0));
 	}
@@ -204,18 +208,14 @@ static bool gjkTriangleCase(Simplex *simplex, Vec2 *dir) {
 	Fixed_FLT abcz;
 	Vec2 abc = vec2Cross3(ab, 0, ac, 0, &abcz);
 
-	printf("Triangle Case\n");
 	if (Vec2Dot(vec2Cross3(abc, abcz, ac, 0, NULL), ao) > 0) {
-		printf("Triangle AC\n");
 		if (Vec2Dot(ac, ao) > 0) {
-			printf("Triangle AC 2 Points\n");
 			simplex->points[1] = a;
 			simplex->points[0] = c;
 			simplex->len = 2;
 
 			*dir = Vec2Normalize(vec2TripleCross3(ac, 0, ao, 0));
 		} else {
-			printf("Triangle AC 1 Point\n");
 			simplex->points[0] = a;
 			simplex->len = 1;
 
@@ -224,16 +224,13 @@ static bool gjkTriangleCase(Simplex *simplex, Vec2 *dir) {
 
 		return false;
 	} else if (Vec2Dot(vec2Cross3(ab, 0, abc, abcz, NULL), ao) > 0) {
-		printf("Triangle AB\n");
 		if (Vec2Dot(ab, ao) > 0) {
-			printf("Triangle AB 2 Points\n");
 			simplex->points[1] = a;
 			simplex->points[0] = b;
 			simplex->len = 2;
 
 			*dir = Vec2Normalize(vec2TripleCross3(ab, 0, ao, 0));
 		} else {
-			printf("Triangle AB 1 Point\n");
 			simplex->points[0] = a;
 			simplex->len = 1;
 
@@ -246,7 +243,61 @@ static bool gjkTriangleCase(Simplex *simplex, Vec2 *dir) {
 	return true;
 }
 
-bool GJK(ObjectList *list, size_t a, size_t b) {
+static Vec2 vec2Normal(Vec2 x) {
+	return (Vec2) {
+		.x = x.y,
+		.y = -x.x,
+	};
+}
+
+static Vec2 epa(ObjectList *objects, size_t a, size_t b, Simplex simplex) {
+	PointList *polytope;
+	PointListInit(simplex.len*2, &polytope);
+	for (size_t i = 0; i < simplex.len; ++i) {
+		PointListAppend(&polytope, simplex.points[i]);
+	}
+
+	size_t min_index = 0;
+	Vec2 min_normal = {0};
+	Fixed_FLT min_dist = FLT_MAX;
+	while(min_dist == FLT_MAX) {
+		Vec2 *items = &polytope->items;
+		for (size_t i = 0; i < polytope->len; ++i) {
+			size_t j = i+1;
+			if (j == polytope->len) {
+				j = 0;
+			}
+
+			Vec2 ij = Vec2Sub(items[j], items[i]);
+			Vec2 normal = Vec2Normalize0(vec2Normal(ij));
+			Fixed_FLT dist = Vec2Dot(normal, items[i]);
+
+			if (dist < 0) {
+				dist *= -1;
+				normal = Vec2MultScaler(normal, -1);
+			}
+
+			if (dist < min_dist) {
+				min_dist = dist;
+				min_normal = normal;
+				min_index = j;
+			}
+		}
+
+		Vec2 support = supportPoint(objects, a, b, min_normal);
+		Fixed_FLT support_dist = Vec2Dot(min_normal, support);
+
+		if (support_dist < min_dist) {
+			min_dist = FLT_MAX;
+			PointListInsertAt(&polytope, support, min_index);
+		}
+	}
+
+	PointListFree(polytope);
+	return Vec2MultScaler(min_normal, FixedAdd(min_dist, FixedFromFloat(0.0001)));
+}
+
+bool GJK(ObjectList *list, size_t a, size_t b, Vec2 *mpv) {
 	Vec2 dir = (Vec2){
 		.x = FixedFromInt(1),
 		.y = 0,
@@ -272,6 +323,9 @@ bool GJK(ObjectList *list, size_t a, size_t b) {
 			break;
 		case 3:
 			if (gjkTriangleCase(&simplex, &dir)) {
+				if (mpv != NULL) {
+					*mpv = epa(list, a, b, simplex);
+				}
 				return true;
 			}
 			break;
@@ -310,7 +364,7 @@ int GJKTest() {
 			(Vec2){0},
 			(ObjectMaterial){0});
 
-		bool res = GJK(&world->objects, 0, 1);
+		bool res = GJK(&world->objects, 0, 1, NULL);
 		if (res) {
 			printf("Circle test 1 passed\n");
 		} else {
