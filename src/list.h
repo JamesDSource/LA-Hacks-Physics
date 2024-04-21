@@ -47,6 +47,6 @@ typedef enum {
 	List_Result L ## Init(size_t cap, L **list); \
 	void L ## Free(L *list); \
 	List_Result L ## Append(L **list, T item); \
-	List_Result L ## UnorderedRemove(L *list, size_t idx); \
+	List_Result L ## UnorderedRemove(L *list, size_t idx);
 
 #endif

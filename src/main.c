@@ -1,8 +1,8 @@
 #include<stdio.h>
 #include<stdbool.h>
-#include"world.h"
 #include<assert.h>
-#include "raylib.h"
+#include"raylib.h"
+#include"world.h"
 
 const int width  = 800;
 const int height = 800;
@@ -62,58 +62,8 @@ void drawCircle(Vec2 center, Fixed_FLT radius, Vec2* velocity){
 	}                              
     DrawCircle((int)FloatFromFixed(center.x),(int)FloatFromFixed(center.y), radius, DARKBLUE);                                            
 }
-typedef struct {
-  Vec2 lowerBound;
-  Vec2 upperBound;
-}aabb;
-
-Vec2 min(Vec2 a, Vec2 b)
-{
-    return (Vec2){FixedSub(a.x,b.x), FixedSub(a.y,b.y)};
-}
-
-Vec2 max(Vec2 a, Vec2 b)
-{
-    return (Vec2){FixedAdd(a.x,b.x), FixedAdd(a.y,b.y)};
-}
-
-aabb aabbUnion(aabb a, aabb b)
-{
-    aabb c;
-    c.lowerBound = min(a.lowerBound, b.lowerBound);
-    c.upperBound = max(a.upperBound, b.upperBound);
-    return c;
-}
-
-float area(aabb a)
-{
-    Vec2 d = Vec2Sub(a.upperBound,a.lowerBound);
-    return FixedMult(d.x,d.y);
-}
-
-typedef struct
-{
-    aabb box;
-    int objectIndex;
-    int parentIndex;
-    int child1;
-    int child2;
-    bool isLeaf;
-} Node;
-
-typedef struct
-{
-    Node* nodes;
-    int nodeCount;
-    int rootIndex;
-}Tree;
-
 
 int main(void) {   
-	Tree *tree = malloc(sizeof(Tree));
-	tree->nodeCount = 3;
-	tree->rootIndex = 0;
-	Node *root = malloc(sizeof(Node));
 	#if 0 
 	root->objectIndex = 0;
 	root->box

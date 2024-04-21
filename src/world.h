@@ -18,7 +18,7 @@ typedef struct {
 } Polygon;
 
 typedef struct {
-	int radius;
+	Fixed_FLT radius;
 } Circle;
 
 typedef enum {
@@ -61,12 +61,15 @@ typedef struct {
 List_Result ObjectListInit(size_t cap, ObjectList *list);
 void ObjectListFree(ObjectList list);
 List_Result ObjectListAppend(ObjectList *list, Object object, Vec2 position, Vec2 velocity, ObjectMaterial material);
+List_Result ObjectListAppendCircle(ObjectList *list, Circle circle, Vec2 position, Vec2 velocity, ObjectMaterial material);
+List_Result ObjectListAppendPolygon(ObjectList *list, Polygon polygon, Vec2 position, Vec2 velocity, ObjectMaterial material);
 List_Result ObjectListUnorderedRemove(ObjectList *list, int idx);
-
+void ObjectListClear(ObjectList* list);
 World_Result WorldInit(World **world);
 void WorldDeinit(World *world);
 void WorldTick(World *world);
 
 bool GJK(ObjectList *list, size_t a, size_t b);
+int GJKTest();
 
 #endif

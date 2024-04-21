@@ -39,4 +39,7 @@ Fixed_FLT Vec2Dot(Vec2 a, Vec2 b);
 Fixed_FLT Vec2Cross(Vec2 a, Vec2 b);
 Fixed_FLT Vec2Length(Vec2 x);
 Vec2 Vec2Normalize(Vec2 x);
+Vec2 Vec2Normalize0(Vec2 x);
+Vec2 Vec2Min(Vec2 a, Vec2 b);
+Vec2 Vec2Max(Vec2 a, Vec2 b);
 #endif

@@ -1,5 +1,7 @@
 #include"fixed_math.h"
 #include<stdlib.h>
+#include<stdio.h>
+#include<math.h>
 
 Fixed_FLT FixedFromInt(int x) {
 	return (Fixed_FLT)(x << FLT_FRAC_BITS);
@@ -60,15 +62,12 @@ Fixed_FLT FixedAbs(Fixed_FLT x) {
 }
 
 Fixed_FLT FixedSqrt(Fixed_FLT x) {
-	Fixed_FLT result = FixedFromInt(1);
-	Fixed_FLT error = FixedFromFloat(0.001f);
-
-	int iteration = 0;
-	while ((iteration++ < 10) && abs(FixedSub(FixedMult(result, result), x)) >= error) {
-		result = FixedMult(FixedFromFloat(0.5f), FixedAdd(result, FixedDiv(x, result)));
-	}
-
-	return result;
+	printf("%f\n", FloatFromFixed(x));
+	float f = FloatFromFixed(x);
+	printf("%f\n", f);
+	f = sqrtf(f);
+	printf("%f\n", f);
+	return FixedFromFloat(f);
 }
 
 Vec2 Vec2Add(Vec2 a, Vec2 b) {
@@ -133,9 +132,33 @@ Fixed_FLT Vec2Length(Vec2 x) {
 }
 
 Vec2 Vec2Normalize(Vec2 x) {
+	printf("x %f y %f \n", FloatFromFixed(x.x), FloatFromFixed(x.y));
 	Fixed_FLT length = Vec2Length(x);
+	printf("Length %f\n", FloatFromFixed(length));
 	return (Vec2){
 		.x = FixedDiv(x.x, length),
 		.y = FixedDiv(x.y, length),
+	};
+}
+
+Vec2 Vec2Normalize0(Vec2 x) {
+	Fixed_FLT length = Vec2Length(x);
+	return length == 0 ? (Vec2){0} : (Vec2){
+		.x = FixedDiv(x.x, length),
+		.y = FixedDiv(x.y, length),
+	};
+}
+
+Vec2 Vec2Min(Vec2 a, Vec2 b) {
+	return (Vec2) {
+		a.x < b.x ? a.x : b.x,
+		a.y < b.y ? a.y : b.y
+	};
+}
+
+Vec2 Vec2Max(Vec2 a, Vec2 b) {
+	return (Vec2) {
+		a.x > b.x ? a.x : b.x,
+		a.y > b.y ? a.y : b.y
 	};
 }
